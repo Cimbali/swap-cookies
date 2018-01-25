@@ -1,0 +1,9 @@
+html,
+body {
+	color: inherit;
+	width: auto;
+}
+
+.panel {
+	padding: 5px;
+}

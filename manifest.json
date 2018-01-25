@@ -1,0 +1,25 @@
+{
+	"browser_action":
+	{
+		"browser_style": true,
+		"default_title": "Swap cookies",
+		"default_popup": "cookies.html",
+		"default_icon":
+		{
+			"19": "icons/default19.png",
+			"38": "icons/default38.png"
+		}
+	},
+	"description": "Swap cookies for the domain in the current tab.",
+	"icons":
+	{
+		"48": "icons/cookie.png",
+		"96": "icons/cookie@2x.png"
+	},
+	"homepage_url": "https://github.com/Cimbali/swap-cookies",
+	"manifest_version": 2,
+	"name": "Swap cookies",
+	"version": "1.0",
+	"permissions": ["cookies", "<all_urls>", "storage", "tabs"]
+}
+
