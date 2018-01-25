@@ -3,6 +3,9 @@
 ## What it does
 
 This extension swaps the cookies for the website open in the active tab.
+
+![Swapping cookies](icons/bigger.png)
+
 This way, you can swap between two accounts for a website with a few clicks, and
 without going through the process of logging out or opening a private browsing session
 and logging in again.
