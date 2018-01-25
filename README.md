@@ -17,7 +17,9 @@ All those tabs are reloaded when you swap the cookies.
 
 ## Installing
 
-There are a couple ways to try out this extension
+**Get it from [addons.mozilla.org](https://addons.mozilla.org/en-GB/firefox/addon/swap-cookies/)!**
+
+There are a couple ways to try out this extension from source as well:
 
 1. Open Firefox and load `about:debugging` in the URL bar. Click the
    [Load Temporary Add-on](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Temporary_Installation_in_Firefox)
