@@ -1,0 +1,12 @@
+.current {
+	font-weight:bold;
+}
+
+#domains input {
+	width:calc(100% - 8em);
+}
+
+.domain_set button {
+	width:6em;
+	margin:0 1em;
+}

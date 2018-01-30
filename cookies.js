@@ -229,6 +229,7 @@ function setup(tabs)
 		$('#doswap').click(() => { run_with_args(swap_cookies, params); });
 		$('#delete').click(() => { run_with_args(delete_profile, params); });
 		$('#rename').click(() => { rename_jar(params); });
+		$('#options').click(() => { browser.runtime.openOptionsPage(); });
 		$('#new-name').on('input', () =>
 		{
 			if ($('#new-name').val())
