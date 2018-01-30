@@ -5,9 +5,9 @@ function run_with_args(f, url, store_id)
 	Promise.all([
 		browser.storage.local.get(url.hostname + '@' + store_id),
 		browser.cookies.getAll({ url: url.href })
-	]).then(args_arr =>
+	]).then(([storage, cookies]) =>
 	{
-		f(args_arr[0], args_arr[1], url, store_id);
+		f(storage, cookies, url, store_id);
 	});
 }
 
@@ -21,7 +21,7 @@ function populate_cookie_list(storage, cookies, url, store_id)
 	{
 		cookie_shelf.jars.forEach((saved_set, id) =>
 		{
-			opt = $('<option></option>').attr('value', id).text(saved_set.name || 'Unnamed profile');
+			var opt = $('<option></option>').attr('value', id).text(saved_set.name || 'Unnamed profile');
 			cookie_select.append(opt);
 		});
 		cookie_select.append($('<option id="fresh-cookies" value="new">New batch of cookies</option>'));
@@ -29,7 +29,7 @@ function populate_cookie_list(storage, cookies, url, store_id)
 	}
 	else if (cookies.length)
 	{
-		opt = $('<option></option>').attr('value', 0).text('Default profile');
+		var opt = $('<option></option>').attr('value', 0).text('Default profile');
 		cookie_select.append(opt).append($('<option id="fresh-cookies" value="new">New batch of cookies</option>')).val(0);
 	}
 	else
@@ -88,7 +88,7 @@ function swap_cookies(storage, cookies, url, store_id)
 	// NB. don't assign old_jar to keep old_jar.name
 	Array.prototype.splice.apply(old_jar, [0, old_jar.length].concat(cookies));
 	shelf.current = new_profile;
-	browser.storage.local.set(storage, e => console.error(e));
+	browser.storage.local.set(storage);
 
 
 	// Remove all current cookies, and get the new jar's cookies out
