@@ -111,17 +111,20 @@ function rename_jar(storage_id)
 	$('#new-name').val('');
 	$('#rename').attr('disabled', 'disabled');
 
-	if (jar_number == 'new')
-		return;
-
 	browser.storage.local.get(storage_id).then((storage) =>
 	{
 		if (typeof storage[storage_id] == 'undefined')
-			storage[storage_id] = { jars: [{ name: '', cookies: [] }], current: 0 };
+			storage[storage_id] = { jars: [{ name: 'Default Profile', cookies: [] }], current: 0 };
 
-		var jar = storage[storage_id].jars[jar_number];
+		if (jar_number == 'new')
+		{
+			jar_number = shelf.jars.length;
+			shelf.jars.push({ name: new_name, cookies: [] });
+			$('<option></option>').attr('value', jar_number).text(new_name).insertBefore('#fresh-cookies');
+		}
+		else
+			storage[storage_id].jars[jar_number].name = new_name;
 
-		jar.name = new_name;
 		browser.storage.local.set(storage, e => console.error(e));
 		$('#cookie-sets').find('option[value=' + jar_number + ']').text(new_name);
 	});
