@@ -66,8 +66,8 @@ function swap_cookies(storage, cookies, url, store_id)
 	if (typeof shelf == 'undefined')
 	{
 		// Default profile, with value 0, correponding <option> already exists
-		storage[url.hostname + '@' + store_id] = shelf = { jars: [[]], current: 0 };
-		shelf.jars[0].name = 'Default profile';
+		storage[url.hostname + '@' + store_id] = shelf = { jars: [], current: 0 };
+		shelf.jars.push({ name: 'Default profile', cookies: [] });
 		cookie_select.val(new_profile);
 	}
 
@@ -75,21 +75,18 @@ function swap_cookies(storage, cookies, url, store_id)
 	if (new_profile == 'new')
 	{
 		new_profile = shelf.jars.length;
-		shelf.jars.push([]);
-		shelf.jars[new_profile].name = 'New profile';
+		shelf.jars.push({ name: 'New profile', cookies: [] });
 		$('<option>New profile</option>').attr('value', new_profile).insertBefore('#fresh-cookies');
 		cookie_select.val(new_profile);
 	}
 
-	var old_jar = shelf.jars[shelf.current];
-	var new_jar = shelf.jars[new_profile];
-
-	// Replace cookies in the old jar with current cookies, and put back on shelf and in storage.
-	// NB. don't assign old_jar to keep old_jar.name
-	Array.prototype.splice.apply(old_jar, [0, old_jar.length].concat(cookies));
+	// store current cookies back in their jar on the shelf
+	shelf.jars[shelf.current].cookies = cookies
 	shelf.current = new_profile;
+
 	browser.storage.local.set(storage);
 
+	var new_jar = shelf.jars[new_profile].cookies;
 
 	// Remove all current cookies, and get the new jar's cookies out
 	Promise.all(cookies.map((old_cookie) => browser.cookies.remove({ url: url.href, name: old_cookie.name }))).then(() =>
@@ -120,7 +117,7 @@ function rename_jar(storage_id)
 	browser.storage.local.get(storage_id).then((storage) =>
 	{
 		if (typeof storage[storage_id] == 'undefined')
-			storage[storage_id] = { jars: [[]], current: 0 };
+			storage[storage_id] = { jars: [{ name: '', cookies: [] }], current: 0 };
 
 		var jar = storage[storage_id].jars[jar_number];
 
@@ -169,7 +166,7 @@ function delete_profile(storage, cookies, url, store_id)
 }
 
 
-browser.tabs.query({ currentWindow: true, active: true }).then(tabs =>
+function setup(tabs)
 {
 	// Get the first tab object in the array
 	var tab = tabs.pop();
@@ -191,4 +188,6 @@ browser.tabs.query({ currentWindow: true, active: true }).then(tabs =>
 
 	// Setup the cookie list
 	run_with_args(populate_cookie_list, url, store_id);
-});
+}
+
+check_update().then(() => browser.tabs.query({ currentWindow: true, active: true }).then(setup));
