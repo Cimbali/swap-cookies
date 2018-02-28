@@ -11,6 +11,10 @@
 		}
 	},
 	"description": "Swap cookies for the domain in the current tab.",
+	"background":
+	{
+		"scripts": ["update.js", "background.js"]
+	},
 	"icons":
 	{
 		"48": "icons/cookie.png",
@@ -19,7 +23,7 @@
 	"homepage_url": "https://github.com/Cimbali/swap-cookies",
 	"manifest_version": 2,
 	"name": "Swap cookies",
-	"version": "1.1",
+	"version": "1.2",
 	"permissions": ["cookies", "<all_urls>", "storage", "tabs"]
 }
 

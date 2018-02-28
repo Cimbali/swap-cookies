@@ -96,7 +96,11 @@ function swap_cookies(storage, cookies, url, store_id)
 			cookie_select.val(new_profile);
 			browser.tabs.query({ url: '*://*.' + url.hostname + '/*', cookieStoreId: store_id }).then((tabs) =>
 			{
-				tabs.forEach((tab) => { browser.tabs.reload(tab.id) });
+				tabs.forEach(tab =>
+				{
+					browser.tabs.reload(tab.id);
+					browser.browserAction.setBadgeText({tabId: tab.id, text: shelf.jars[shelf.current].name});
+				});
 			});
 		});
 	});
@@ -127,6 +131,16 @@ function rename_jar(storage_id)
 
 		browser.storage.local.set(storage, e => console.error(e));
 		$('#cookie-sets').find('option[value=' + jar_number + ']').text(new_name);
+
+		// If renaming the profile currently in use, adjust the badge text
+		if (jar_number == storage[storage_id].current)
+		{
+			var [hostname, store_id] = storage_id.split('@');
+			browser.tabs.query({ url: '*://*.' + hostname + '/*', cookieStoreId: store_id }).then((tabs) =>
+			{
+				tabs.forEach(tab => { browser.browserAction.setBadgeText({tabId: tab.id, text: new_name}); });
+			});
+		}
 	});
 }
 
@@ -151,6 +165,11 @@ function delete_profile(storage, cookies, url, store_id)
 			{
 				browser.storage.local.remove(storage_id, e => console.error(e));
 				storage = {}
+
+				browser.tabs.query({ url: '*://*.' + url.hostname + '/*', cookieStoreId: store_id }).then((tabs) =>
+				{
+					tabs.forEach(tab => { browser.browserAction.setBadgeText({tabId: tab.id, text: ""}); });
+				});
 			}
 			// Do not want to switch to a different profile here
 			else
