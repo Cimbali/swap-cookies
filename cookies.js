@@ -242,4 +242,4 @@ function setup(tabs)
 	});
 }
 
-check_update().then(() => browser.tabs.query({ currentWindow: true, active: true }).then(setup));
+check_update.then(() => browser.tabs.query({ currentWindow: true, active: true }).then(setup));

@@ -86,7 +86,7 @@ function refresh_public_suffix_list(config)
 const updaters = { '1.0': cookiejar_array_to_dict, '1.1': use_public_domain_list, '1.2': use_public_domain_list };
 
 // Do the checking, return a promise that resolves whenever we have finished updating
-async function check_update()
+var check_update = (async function ()
 {
 	var data = await browser.storage.local.get('configuration');
 
@@ -115,9 +115,9 @@ async function check_update()
 		Object.assign(config, { version: version });
 		await browser.storage.local.set({ 'configuration': config });
 	}
-}
+})();
 
-var load_suffix_list = check_update().then(() =>
+var load_suffix_list = check_update.then(() =>
 {
 	browser.storage.local.get('configuration').then(data => { publicSuffixList.parse(data.configuration.psl.list); })
 });

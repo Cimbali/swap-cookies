@@ -6,7 +6,7 @@ function get_canonical_domain_name(hostname)
 	});
 }
 
-check_update().then(() =>
+check_update.then(() =>
 {
 	// Initialliy load all stored cookies and set badges for all URLs they match
 	browser.storage.local.get().then(storage =>
