@@ -1,3 +1,11 @@
+function get_canonical_domain_name(hostname)
+{
+	return new Promise((ok, no) =>
+	{
+		load_suffix_list.then(() => ok(publicSuffixList.getDomain(punycode.toASCII(hostname))));
+	});
+}
+
 check_update().then(() =>
 {
 	// Initialliy load all stored cookies and set badges for all URLs they match
@@ -19,17 +27,19 @@ check_update().then(() =>
 	// When a tab stops loading, check if we have a cookie profile for it and if so set the badge
 	browser.tabs.onUpdated.addListener((storage_id, changeInfo, tab) => {
 		if ('status' in changeInfo && changeInfo.status === 'complete') {
-			var hostname = new URL(tab.url).hostname;
-			var storage_id = hostname + '@' + tab.cookieStoreId;
-
-			browser.storage.local.get(storage_id).then(storage =>
+			get_canonical_domain_name(new URL(tab.url).hostname).then(hostname =>
 			{
-				if (storage_id in storage)
+				var storage_id = hostname + '@' + tab.cookieStoreId;
+
+				browser.storage.local.get(storage_id).then(storage =>
 				{
-					var cur_id = storage[storage_id].current;
-					var cur_name = storage[storage_id].jars[cur_id].name;
-					browser.browserAction.setBadgeText({tabId: tab.id, text: cur_name});
-				}
+					if (storage_id in storage)
+					{
+						var cur_id = storage[storage_id].current;
+						var cur_name = storage[storage_id].jars[cur_id].name;
+						browser.browserAction.setBadgeText({tabId: tab.id, text: cur_name});
+					}
+				});
 			});
 		}
 	});

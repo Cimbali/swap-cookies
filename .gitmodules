@@ -1,0 +1,6 @@
+[submodule "deps/publicsuffixlist"]
+	path = deps/publicsuffixlist
+	url = https://github.com/gorhill/publicsuffixlist.js
+[submodule "deps/punycode"]
+	path = deps/punycode
+	url = https://github.com/bestiejs/punycode.js
