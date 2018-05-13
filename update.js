@@ -41,7 +41,7 @@ async function cookiejar_array_to_dict()
 async function use_public_domain_list()
 {
 	var storage = await browser.storage.local.get(null);
-	publicSuffixList.parse(data.configuration.psl.list);
+	publicSuffixList.parse(data.configuration.psl.list, punycode.toASCII);
 
 	Object.keys(storage).filter(k => k != 'configuration').forEach(shelf =>
 	{
@@ -78,7 +78,7 @@ function refresh_public_suffix_list(config)
 		var arr = data.split('\n')
 			.map(l => punycode.toASCII(l.trim()))
 			.filter(l => l.length && !l.startsWith('//'));
-		config['psl'] = { date: new Date(), list: arr };
+		config['psl'] = { date: new Date(), list: JSON.stringify(arr) };
 	}).then(() => true).catch(() => false);
 }
 
@@ -86,38 +86,44 @@ function refresh_public_suffix_list(config)
 const updaters = { '1.0': cookiejar_array_to_dict, '1.1': use_public_domain_list, '1.2': use_public_domain_list };
 
 // Do the checking, return a promise that resolves whenever we have finished updating
-var check_update = (async function ()
+var check_update = (async function (resolve, reject)
 {
 	var data = await browser.storage.local.get('configuration');
 
+	var config = Object.assign({version: '1.0'}, 'configuration' in data ? data.configuration : {});
+	var update_from = config.version;
 	var version = browser.runtime.getManifest().version;
-	var config = 'configuration' in data ? data.configuration : {};
-	if ('version' in config && config.version in updaters)
-		var update_from = config.version;
-	else
-		var update_from = '1.0';
-
 	var updated = (version != update_from);
 
+	if (updated && !(update_from in updaters))
+		update_from = '1.0';
+
 	// Make sure the public suffix list exists
-	if (true || !('psl' in config))
+	if (!('psl' in config))
 		updated = (await fallback_public_suffix_list(config)) || updated;
 
 	// Refresh every 7 days
 	if ((new Date() - new Date(config.psl.date)) > (1000 * 3600 * 24 * 7))
 		updated = (await refresh_public_suffix_list(config)) || updated;
 
+	if (Array.isArray(config.psl.list))
+	{
+		config.psl.list = JSON.stringify(config.psl.list);
+		updated = true;
+	}
+
 	while (update_from != version && update_from in updaters)
 		update_from = updaters[update_from];
 
 	if (updated)
 	{
-		Object.assign(config, { version: version });
+		config.version = version;
 		await browser.storage.local.set({ 'configuration': config });
 	}
 })();
 
+
 var load_suffix_list = check_update.then(() =>
 {
-	browser.storage.local.get('configuration').then(data => { publicSuffixList.parse(data.configuration.psl.list); })
+	browser.storage.local.get('configuration').then(data => { publicSuffixList.parse(data.configuration.psl.list, punycode.toASCII); })
 });
